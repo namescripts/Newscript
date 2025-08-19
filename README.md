@@ -1,0 +1,2 @@
+# Newscript
+Lol
