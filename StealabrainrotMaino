@@ -1,0 +1,59 @@
+-- LocalScript в StarterPlayerScripts
+local player = game.Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local humrp = char:WaitForChild("HumanoidRootPart")
+local RunService = game:GetService("RunService")
+
+-- === Блоки ===
+local block = Instance.new("Part")
+block.Size = Vector3.new(6,1,6)
+block.Anchored = true
+block.CanCollide = true
+block.Color = Color3.fromRGB(0, 255, 0)
+block.Position = humrp.Position - Vector3.new(0, 4, 0)
+block.Parent = workspace
+
+local innerBlock = Instance.new("Part")
+innerBlock.Size = Vector3.new(3,3,3)
+innerBlock.Anchored = true
+innerBlock.CanCollide = false
+innerBlock.Transparency = 0.5
+innerBlock.Color = Color3.fromRGB(255, 255, 0)
+innerBlock.Position = humrp.Position
+innerBlock.Parent = workspace
+
+-- === GUI ===
+local screengui = Instance.new("ScreenGui")
+screengui.ResetOnSpawn = false
+screengui.Parent = player:WaitForChild("PlayerGui")
+
+-- Label "Bypassed!"
+local bypassLabel = Instance.new("TextLabel")
+bypassLabel.Size = UDim2.new(1,0,0,50)
+bypassLabel.Position = UDim2.new(0,0,0,0)
+bypassLabel.BackgroundTransparency = 1
+bypassLabel.Text = ""
+bypassLabel.TextColor3 = Color3.fromRGB(0,255,0)
+bypassLabel.Font = Enum.Font.GothamBold
+bypassLabel.TextSize = 28
+bypassLabel.Parent = screengui
+
+-- === Красивая кнопка ===
+local function createButton(name, text, position, color1, color2)
+	local btn = Instance.new("TextButton")
+	btn.Name = name
+	btn.Size = UDim2.new(0,120,0,50)
+	btn.Position = position
+	btn.Text = text
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 20
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.Parent = screengui
+	btn.AutoButtonColor = false
+
+	local corner = Instance.new("UICorner", btn)
+	corner.CornerRadius = UDim.new(0,12)
+
+	local gradient = Instance.new("UIGradient", btn)
+	gradient.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, color
