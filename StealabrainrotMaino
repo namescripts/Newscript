@@ -1,4 +1,5 @@
 -- LocalScript в StarterPlayerScripts
+
 local player = game.Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 local humrp = char:WaitForChild("HumanoidRootPart")
@@ -27,18 +28,44 @@ local screengui = Instance.new("ScreenGui")
 screengui.ResetOnSpawn = false
 screengui.Parent = player:WaitForChild("PlayerGui")
 
--- Label "Bypassed!"
-local bypassLabel = Instance.new("TextLabel")
-bypassLabel.Size = UDim2.new(1,0,0,50)
-bypassLabel.Position = UDim2.new(0,0,0,0)
-bypassLabel.BackgroundTransparency = 1
-bypassLabel.Text = ""
-bypassLabel.TextColor3 = Color3.fromRGB(0,255,0)
-bypassLabel.Font = Enum.Font.GothamBold
-bypassLabel.TextSize = 28
-bypassLabel.Parent = screengui
+-- Загрузка экран
+local loadingFrame = Instance.new("Frame", screengui)
+loadingFrame.Size = UDim2.new(1,0,1,0)
+loadingFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
 
--- === Красивая кнопка ===
+local loadingLabel = Instance.new("TextLabel", loadingFrame)
+loadingLabel.Size = UDim2.new(1,0,0,50)
+loadingLabel.Position = UDim2.new(0,0,0.45,0)
+loadingLabel.BackgroundTransparency = 1
+loadingLabel.Text = "Loading..."
+loadingLabel.TextColor3 = Color3.fromRGB(0,255,0)
+loadingLabel.Font = Enum.Font.GothamBold
+loadingLabel.TextSize = 32
+
+local progressBarBG = Instance.new("Frame", loadingFrame)
+progressBarBG.Size = UDim2.new(0.6,0,0,20)
+progressBarBG.Position = UDim2.new(0.2,0,0.55,0)
+progressBarBG.BackgroundColor3 = Color3.fromRGB(50,50,50)
+progressBarBG.BorderSizePixel = 0
+progressBarBG.ClipsDescendants = true
+progressBarBG.BackgroundTransparency = 0.2
+
+local progressBar = Instance.new("Frame", progressBarBG)
+progressBar.Size = UDim2.new(0,0,1,0)
+progressBar.Position = UDim2.new(0,0,0,0)
+progressBar.BackgroundColor3 = Color3.fromRGB(0,200,0)
+progressBar.BorderSizePixel = 0
+
+-- Анимация прогресса
+task.spawn(function()
+	for i=1,100 do
+		progressBar.Size = UDim2.new(i/100,0,1,0)
+		task.wait(0.04)
+	end
+	loadingFrame:Destroy()
+end)
+
+-- === UI Кнопки ===
 local function createButton(name, text, position, color1, color2)
 	local btn = Instance.new("TextButton")
 	btn.Name = name
@@ -51,9 +78,64 @@ local function createButton(name, text, position, color1, color2)
 	btn.Parent = screengui
 	btn.AutoButtonColor = false
 
+	-- закругления
 	local corner = Instance.new("UICorner", btn)
 	corner.CornerRadius = UDim.new(0,12)
 
+	-- градиент
 	local gradient = Instance.new("UIGradient", btn)
 	gradient.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, color
+		ColorSequenceKeypoint.new(0, color1),
+		ColorSequenceKeypoint.new(1, color2)
+	}
+	gradient.Rotation = 45
+
+	-- переливание
+	task.spawn(function()
+		while btn.Parent do
+			for i=0,360,2 do
+				gradient.Rotation = i
+				task.wait(0.02)
+			end
+		end
+	end)
+
+	return btn
+end
+
+local up = createButton("UP","UP",UDim2.new(1,-130,0,10),Color3.fromRGB(0,170,255),Color3.fromRGB(0,255,170))
+local down = createButton("DOWN","DOWN",UDim2.new(0,10,0,10),Color3.fromRGB(255,80,80),Color3.fromRGB(255,170,0))
+
+-- Label "Bypassed!"
+local bypassLabel = Instance.new("TextLabel")
+bypassLabel.Size = UDim2.new(1,0,0,50)
+bypassLabel.Position = UDim2.new(0,0,0,0)
+bypassLabel.BackgroundTransparency = 1
+bypassLabel.Text = ""
+bypassLabel.TextColor3 = Color3.fromRGB(0,255,0)
+bypassLabel.Font = Enum.Font.GothamBold
+bypassLabel.TextSize = 28
+bypassLabel.Parent = screengui
+
+-- === Логика ===
+local offset = -4
+
+up.MouseButton1Click:Connect(function()
+	offset = offset + 2
+	bypassLabel.Text = "Bypassed!"
+	task.delay(2,function()
+		bypassLabel.Text = ""
+	end)
+end)
+
+down.MouseButton1Click:Connect(function()
+	offset = offset - 2
+end)
+
+-- Движение блоков
+RunService.RenderStepped:Connect(function()
+	if char and humrp then
+		block.Position = humrp.Position + Vector3.new(0, offset, 0)
+		innerBlock.Position = humrp.Position
+	end
+end)
